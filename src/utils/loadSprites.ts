@@ -1,3 +1,5 @@
+type imagesPath = Record<string, string>;
+
 function loadImage(src: string): Promise<HTMLImageElement> {
     return new Promise((resolve) => {
         const img = new Image();
@@ -6,8 +8,12 @@ function loadImage(src: string): Promise<HTMLImageElement> {
     })
 }
 
-export default function loadSprites(...imagePath: string[]): Promise<HTMLImageElement[]> {
-    console.log(imagePath);
+export default function loadSprites(spritesPath: imagesPath): Promise<HTMLImageElement[]> {
+    console.log('spritesPath', spritesPath);
 
-    return Promise.all(imagePath.map(loadImage));
+    return Promise
+        .all(Object.values(spritesPath).map(loadImage))
+        .then((sprites) => Object.fromEntries(
+            Object.keys(spritesPath).map((key, index) => [key, sprites[index]])
+        )) as Promise<Record<string, HTMLElement>>
 }
