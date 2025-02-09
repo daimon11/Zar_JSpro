@@ -18,7 +18,9 @@ export default function calculateTileCoordinate({
     height = 32,
     pixelGap = 0,
 }: CalculateTileCoordinateParams): TileCoordinate {
+    console.log('pixelGap', pixelGap);
+
     const x = (tileNumber % columns) * (width + pixelGap);
     const y = Math.floor(tileNumber / columns) * (height + pixelGap);
-    return { x, y };
+    return {x, y};
 }

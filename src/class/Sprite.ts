@@ -1,3 +1,5 @@
+import calculateTileCoordinate from "../utils/calculateTileCoordinate";
+
 interface SpriteProps {
   ctx: CanvasRenderingContext2D,
   image: HTMLImageElement,
@@ -15,7 +17,8 @@ interface SpriteProps {
       val?: number,
     },
     pixelGap?: number,
-  }
+  },
+  tileNumber?: number,
 }
 
 export class Sprite {
@@ -38,12 +41,15 @@ export class Sprite {
       val: number,
     },
     pixelGap?: number,
-  }
+  };
+  tileNumber?: number;
+
   constructor({
     ctx,
     image,
     position,
     frames = {},
+    tileNumber,
   }: SpriteProps) {
     this.ctx = ctx;
     this.image = image;
@@ -61,30 +67,32 @@ export class Sprite {
       pixelGap: 0
     };
 
-    console.log(frames, defaultFrames)
-
+    this.tileNumber = tileNumber;
+    console.log('titleNumber', tileNumber);
     this.frames = {...defaultFrames, ...frames};
 
-    // console.log('this.frames', this.frames);
+    const pixelGapCounter = this.frames.pixelGap !== 0 ? 1 : 0;
 
-    console.log('this.frames.pixelGap', this.frames.pixelGap)
-    this.width = (image.width - ((this.frames.col.max - 1) * this.frames.pixelGap)) / this.frames.col.max;
-    this.height = (image.height - (this.frames.row.max - 1)) / this.frames.row.max;
-
-    console.log('ctx', ctx)
+    this.width = (image.width - ((this.frames.col.max - pixelGapCounter) * this.frames.pixelGap)) / this.frames.col.max;
+    this.height = (image.height - (this.frames.row.max - pixelGapCounter)) / this.frames.row.max;
   }
 
   draw() {
-    const cropX = this.frames.col.val * this.width + this.frames.pixelGap;
-    const cropY = this.frames.row.val * this.height + this.frames.pixelGap;
+    let cropX = this.frames.col.val * this.width + this.frames.pixelGap;
+    let cropY = this.frames.row.val * this.height + this.frames.pixelGap;
 
-    console.log(cropX, cropY, this.image.width / this.frames.col.max,
-      this.image.height / this.frames.row.max,
-      this.position.x,
-      this.position.y,
-      this.image.width / this.frames.col.max,
-      this.image.height / this.frames.row.max)
+    if (this.tileNumber !== undefined) {
+      const {x, y} = calculateTileCoordinate({
+        tileNumber: this.tileNumber! - 1,
+        width: this.frames.col.max,
+        height: this.width,
+        pixelGap: this.frames.pixelGap,
+      });
 
+      cropX = x;
+      cropY = y;
+
+    }
     this.ctx.drawImage(
       this.image,
       cropX,

@@ -7,6 +7,7 @@ import {Sprite} from './class';
 
 import calculateTileCoordinate from './utils/calculateTileCoordinate';
 import loadSprites from './utils/loadSprites';
+import createMap from './utils/createMap';
 
 const canvas: HTMLCanvasElement | null = document.getElementById('game') as HTMLCanvasElement;
 
@@ -60,6 +61,20 @@ function updateCamera() {
 async function init() {
   const sprites = await loadSprites(SPRITES);
 
+  const map = createMap({
+    ctx,
+    data: mapJSON.layers[0].data,
+    image: sprites.MAP,
+    mapColumns: COL_LENGTH,
+    columns: 19,
+    rows: 20,
+    width: TILED_SIZE,
+    height: TILED_SIZE,
+    pixelGap: 0,
+  })
+
+  console.log('map', map);
+
   const terrian = new Sprite({
     ctx,
     image: sprites.MAP,
@@ -70,14 +85,13 @@ async function init() {
     frames: {
       col: {
         max: 19,
-        val: 2,
       },
       row: {
         max: 20,
-        val: 2,
       },
       pixelGap: 1,
-    }
+    },
+    tileNumber: 24,
   })
 
   const duratorMap = new Sprite({
@@ -103,22 +117,21 @@ async function init() {
     ctx,
     image: sprites.PLAYER,
     position: {
-      x: 0,
-      y: 0,
+      x: 100,
+      y: 100,
     },
     frames: {
       col: {
         max: 9,
-        val: 0,
+        val: 6,
       },
       row: {
         max: 4,
-        val: 0,
+        val: 3,
       }
     }
   })
 
-  console.log('player', player);
   player.draw(),
 
     console.log('Start game Init');
@@ -131,10 +144,12 @@ async function init() {
 
     updateCamera();
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    // map.forEach(sprite => {sprite.draw()})
+    // map[96].draw();
     // drawGame();
-    // duratorMap.draw();
+    duratorMap.draw();
     // terrian.draw();
-    player.draw(),
+    // player.draw(),
     drawCharacter(deltaTime)
   }
   animate(lastTimeUpdate)
